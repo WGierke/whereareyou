@@ -101,17 +101,19 @@ def callback():
                 Auth.TOKEN_URI,
                 client_secret=Auth.CLIENT_SECRET,
                 authorization_response=request.url.replace("http://", "https://"))
-        except HTTPError:
+        except:
             return 'HTTPError occurred.'
         google = get_google_auth(token=token)
         resp = google.get(Auth.USER_INFO)
         if resp.status_code == 200:
             user_data = resp.json()
             email = user_data['email']
+            name = user_data['email'].split("@")[0].replace('.', ' ').title()
             user = User.query.filter_by(email=email).first()
             if user is None:
                 user = User()
                 user.email = email
+                user.name = name
             user.name = user_data['name']
             user.tokens = json.dumps(token)
             user.avatar = user_data['picture']
